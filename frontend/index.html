@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecureChat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════ LOGIN SCREEN ══════════════════════════════ -->
+<div id="view-login">
+  <div class="login-card">
+
+    <div class="login-logo">
+      <div class="icon">🔐</div>
+      <h1>SecureChat</h1>
+    </div>
+
+    <div class="login-tabs">
+      <div class="login-tab active" data-mode="login">Login</div>
+      <div class="login-tab" data-mode="register">Cadastro</div>
+    </div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="input-username">Nome de usuário</label>
+        <input
+          id="input-username"
+          type="text"
+          placeholder="seu_usuario"
+          autocomplete="username webauthn"
+          required
+          maxlength="32"
+        >
+      </div>
+      <button class="btn btn-primary" id="login-btn" type="submit">
+        🔐 Login com Biometria
+      </button>
+    </form>
+
+    <div id="login-error" class="error-msg"></div>
+
+    <div class="login-info">
+      Autenticação <b>passwordless</b> via <b>WebAuthn</b>.<br>
+      Use <b>impressão digital</b>, <b>Face ID</b>, <b>Windows Hello</b><br>
+      ou o PIN do dispositivo — sem senhas!
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════ APP SHELL ═════════════════════════════════ -->
+<div id="view-app" class="hidden">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+  <div id="sidebar">
+
+    <div class="sidebar-header">
+      <div class="sidebar-logo">💬</div>
+      <span class="sidebar-title">SecureChat</span>
+      <button class="btn-icon" id="btn-create-room" title="Nova sala">＋</button>
+    </div>
+
+    <div class="sidebar-me">
+      <div class="avatar sm" id="me-avatar">?</div>
+      <div>
+        <div class="me-name" id="me-name">–</div>
+        <div class="me-status">● Online</div>
+      </div>
+    </div>
+
+    <div class="sidebar-search">
+      <input id="sidebar-search" type="text" placeholder="🔍 Buscar…">
+    </div>
+
+    <div class="sidebar-scroll">
+      <!-- People -->
+      <div class="sidebar-section">
+        <div class="section-label">
+          Pessoas
+        </div>
+        <div id="user-list"></div>
+      </div>
+
+      <!-- Rooms -->
+      <div class="sidebar-section">
+        <div class="section-label">
+          Salas
+          <button id="btn-create-room2" title="Nova sala" onclick="document.getElementById('btn-create-room').click()">＋</button>
+        </div>
+        <div id="room-list"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-icon" id="btn-logout" title="Sair" style="flex:initial">🚪</button>
+    </div>
+  </div>
+
+  <!-- ── Main area ────────────────────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- Welcome state -->
+    <div id="view-welcome" class="flex col grow center">
+      <div class="big-icon">💬</div>
+      <h2>Bem-vindo ao SecureChat</h2>
+      <p>Selecione uma pessoa ou sala para começar</p>
+    </div>
+
+    <!-- Chat view (DM or Room) -->
+    <div id="chat-view" class="flex col grow hidden" style="height:100%">
+
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="avatar" id="chat-avatar">?</div>
+        <div class="chat-header-info">
+          <div class="chat-header-name" id="chat-name">–</div>
+          <div class="chat-header-sub"  id="chat-sub">–</div>
+        </div>
+        <div class="chat-header-actions">
+          <button class="action-btn" id="btn-call-audio" title="Ligação de voz" onclick="window._callAudio()">📞</button>
+          <button class="action-btn" id="btn-call-video" title="Chamada de vídeo" onclick="window._callVideo()">📹</button>
+          <button class="action-btn hidden" id="btn-join-video" title="Entrar na videochamada da sala" onclick="window._joinRoomCall()">📹 Entrar</button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div id="messages-area" class="messages-area"></div>
+
+      <!-- Input -->
+      <div class="msg-input-bar">
+        <div class="msg-input-wrap">
+          <textarea
+            id="msg-input"
+            class="msg-input"
+            placeholder="Mensagem…"
+            rows="1"
+            maxlength="4000"
+          ></textarea>
+          <button class="send-btn" id="btn-send" title="Enviar">➤</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VIDEO CALL OVERLAY ════════════════════════════ -->
+<div id="call-overlay">
+  <div id="call-header">
+    <span style="font-size:22px">📹</span>
+    <span id="call-title">Chamada</span>
+    <span id="call-status" style="flex:1"></span>
+    <span id="call-timer"></span>
+  </div>
+
+  <div id="video-grid"></div>
+
+  <div id="call-controls">
+    <button class="ctrl-btn" id="ctrl-mute"   title="Mute/Unmute">🎤</button>
+    <button class="ctrl-btn" id="ctrl-cam"    title="Câmera on/off">📷</button>
+    <button class="ctrl-btn" id="ctrl-screen" title="Compartilhar tela">🖥️</button>
+    <button class="ctrl-btn end" id="ctrl-end" title="Encerrar chamada">📵</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ INCOMING CALL POPUP ═══════════════════════════ -->
+<div id="incoming-call" class="hidden"></div>
+
+<!-- ══════════════════════ TOASTS ════════════════════════════════════════ -->
+<div id="toasts"></div>
+
+<!-- ══════════════════════ SCRIPTS ═══════════════════════════════════════ -->
+<!-- Socket.io -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<!-- WebAuthn browser library -->
+<script src="https://unpkg.com/@simplewebauthn/browser@7.4.0/dist/bundle/index.umd.min.js"></script>
+<!-- App scripts -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/webrtc.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Auto-resize textarea -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const ta = document.getElementById('msg-input');
+    if (ta) {
+      ta.addEventListener('input', () => {
+        ta.style.height = '';
+        ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
